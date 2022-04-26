@@ -1,5 +1,3 @@
-
-
 from hillClimbing import hillClimbing # 引入爬山演算法類別
 from solutionLp import SolutionLp # 引入解答類別
 

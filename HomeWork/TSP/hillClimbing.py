@@ -8,8 +8,8 @@ def hillClimbing(s, maxGens, maxFails):   # 爬山演算法的主體函數
         senrgy = s.energy()              #  sheight=目前解的高度
         nenergy = snew.energy()           #  nheight=鄰近解的高度
         if (nenergy < senrgy):          #  如果鄰近解比目前解更好
-            if(senrgy > 0):
-                print(gens, ':', snew.str())  #    印出新的解
+            # if(senrgy > 0):
+            #     print(gens, ':', snew.str())  #    印出新的解
             s = snew                      #    就移動過去
             fails = 0                     #    移動成功，將連續失敗次數歸零
         else:                             #  否則

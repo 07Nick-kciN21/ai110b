@@ -15,12 +15,9 @@ class SolutionArray(Solution):
         return SolutionArray(nv)  #  傳回新建的鄰居解答。
     # 能量計算
     def energy(self): #  能量函數
-        maps = [[100,5,6,3],
-                [5,100,8,2],
-                [6,8,100,1],
-                [3,2,1,100]]
         paths = self.v
         cost = 0
+        maps = self.map
         for i in range(0, len(paths)-1):
             cost += maps[paths[i]][paths[i+1]]
         cost += maps[paths[len(paths)-1]][paths[0]]
@@ -28,5 +25,6 @@ class SolutionArray(Solution):
     # 顯示
     def str(self):    #  將解答轉為字串的函數，以供列印用。
         return "energy({:s})={:f}".format(str(self.v), self.energy())
+    
 
 
