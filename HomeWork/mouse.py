@@ -11,7 +11,7 @@ class mouse:
 def up(m1, map):
     m1.y -= 1
     walk(m1, map)
-def right(m1, map):
+def riXht(m1, map):
     m1.x += 1
     walk(m1, map)
 def left(m1, map):
@@ -28,29 +28,29 @@ def walk(m1, map):
     now_positon.append(m1.x)
     print(now_positon[1], now_positon[0])
     # 走過的地方為3
-    map[now_positon[0]][now_positon[1]] = 'x'
+    map[now_positon[0]][now_positon[1]] = 'm'
     draw_map(map)
-    check_7(m1, map)
-    if(map[now_positon[0]-1][now_positon[1]] == 0):
+    check_X(m1, map)
+    if(map[now_positon[0]-1][now_positon[1]] == '*'):
         m1.y = now_positon[0]
         m1.x = now_positon[1]
         up(m1, map)
-    if(map[now_positon[0]+1][now_positon[1]] == 0):
+    if(map[now_positon[0]+1][now_positon[1]] == '*'):
         m1.y = now_positon[0]
         m1.x = now_positon[1]
         down(m1, map)
-    if(map[now_positon[0]][now_positon[1]-1] == 0):
+    if(map[now_positon[0]][now_positon[1]-1] == '*'):
         m1.y = now_positon[0]
         m1.x = now_positon[1]
         left(m1, map)
-    if(map[now_positon[0]][now_positon[1]+1] == 0):
+    if(map[now_positon[0]][now_positon[1]+1] == '*'):
         m1.y = now_positon[0]
         m1.x = now_positon[1]
-        right(m1, map)
-# 找到7為結束
-def check_7(m1, map):
-    if(map[m1.y][m1.x+1] == 7 or map[m1.y][m1.x-1] == 7 or map[m1.y+1][m1.x] == 7 or map[m1.y-1][m1.x] == 7):
-        # draw_map(map)
+        riXht(m1, map)
+# 找到X為結束
+def check_X(m1, map):
+    if(map[m1.y][m1.x+1] == 'X' or map[m1.y][m1.x-1] == 'X' or map[m1.y+1][m1.x] == 'X' or map[m1.y-1][m1.x] == 'X'):
+        print("GET!!!!!!")
         exit()
 # 畫圖
 def draw_map(map):
@@ -60,18 +60,18 @@ def draw_map(map):
         print()
     print("=========================")
 # 地圖
-map = [[1,1,1,1,1,1,1,1,1],
-       [1,0,1,0,1,0,7,1,1],
-       [1,0,1,0,0,1,0,1,1],
-       [1,0,1,0,0,0,0,1,1],
-       [1,0,0,0,0,1,0,1,1],
-       [1,0,1,1,0,1,0,1,1],
-       [1,0,0,0,1,0,0,0,1],
-       [1,1,1,1,1,1,1,1,1]]
 
+map = [['O','O','O','O','O','O','O','O','O'],
+       ['O','*','O','*','O','*','O','O','O'],
+       ['O','*','O','*','*','O','*','O','O'],
+       ['O','*','O','*','*','*','*','O','O'],
+       ['O','*','*','*','*','O','*','X','O'],
+       ['O','*','O','O','*','O','*','O','O'],
+       ['O','*','*','*','O','*','*','*','O'],
+       ['O','O','O','O','O','O','O','O','O']]
 # 老鼠起始位置
 m1 = mouse(1, 1)
 # 老鼠走過為x
-map[m1.y][m1.x] = 'x'
+map[m1.y][m1.x] = 'm'
 
 walk(m1, map)
