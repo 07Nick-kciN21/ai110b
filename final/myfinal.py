@@ -4,8 +4,6 @@ import time
 from torch import rand
 
 
-
-
 # 棋盤
 class Board:
     def __init__(self, rMax, cMax):
@@ -13,36 +11,40 @@ class Board:
         self.rMax = rMax
         self.cMax = cMax
         for r in range(rMax):
-            self.m[r] = [None] *cMax
+            self.m[r] = [None] * cMax
             for c in range(cMax):
                 self.m[r][c] = '-'
 
+    #  將棋盤格式化成字串
     def __str__(self):
         b = []
         b.append('  0 1 2 3 4 5 6 7 8 9 a b c d e f')
         for r in range(self.rMax):
             b.append('{:x} {:s} {:x}'.format(r, ' '.join(self.m[r]), r))
-            b.append('  0 1 2 3 4 5 6 7 8 9 a b c d e f')
-            return '\n'.join(b)
+            # r.toString(16) + ' ' + self.m[r].join(' ') + ' ' + r.toString(16) + '\n'
+
+        b.append('  0 1 2 3 4 5 6 7 8 9 a b c d e f')
+        return '\n'.join(b)
+
+    #  顯示棋盤
     def show(self):
         print(str(self))
 
-shape_score = [(60, (1, 1, 0, 0, 0))
-               (60, (0, 1, 1, 0, 0)),
-               (60, (0, 0, 1, 1, 0)),
-               (60, (0, 0, 0, 1, 1)),
-               (100, (1, 1, 0, 1, 0)),
-               (100, (0, 0, 1, 1, 1)),
-               (100, (1, 1, 1, 0, 0)),
-               (3000, (0, 1, 1, 1, 0)),
-               (3000, (0, 1, 0, 1, 1, 0)),
-               (3000, (0, 1, 1, 0, 1, 0)),
-               (3000, (1, 1, 1, 0, 1)),
-               (3000, (1, 1, 0, 1, 1)),
-               (3000, (1, 0, 1, 1, 1)),
-               (3000, (1, 1, 1, 1, 0)),
-               (3000, (0, 1, 1, 1, 1)),
-               (40000, (0, 1, 1, 1, 1, 0)),
+# 得分模型
+shape_score = [(50, (0, 1, 1, 0, 0)),
+               (50, (0, 0, 1, 1, 0)),
+               (200, (1, 1, 0, 1, 0)),
+               (500, (0, 0, 1, 1, 1)),
+               (500, (1, 1, 1, 0, 0)),
+               (5000, (0, 1, 1, 1, 0)),
+               (5000, (0, 1, 0, 1, 1, 0)),
+               (5000, (0, 1, 1, 0, 1, 0)),
+               (5000, (1, 1, 1, 0, 1)),
+               (5000, (1, 1, 0, 1, 1)),
+               (5000, (1, 0, 1, 1, 1)),
+               (5000, (1, 1, 1, 1, 0)),
+               (5000, (0, 1, 1, 1, 1)),
+               (50000, (0, 1, 1, 1, 1, 0)),
                (99999999, (1, 1, 1, 1, 1))]
 
 listAI = []
@@ -66,7 +68,6 @@ def ai():
     cut_count = 0
     global search_count
     search_count = 0
-    first_count = 0
     # 先手AI第一步
     firstPoint = (8,8)
     if not listAllStep: 
@@ -76,9 +77,10 @@ def ai():
         return firstPoint[0],firstPoint[1]
     else:
         negamax(True, DEPTH, -99999999, 99999999)
-
+        return next_point[0], next_point[1]
 # 
 def negamax(is_ai, depth, alpha, beta):
+    # 如果深度見底，開始評分
     if depth==0:
         return evaluation(is_ai)
     # 去掉已經下過的位置
@@ -92,6 +94,7 @@ def negamax(is_ai, depth, alpha, beta):
         # 如果這位周圍沒有棋子，就跳過
         if not has_heightnor(next_step):
             continue
+        # 加入棋步
         if is_ai:
             listAI.append(next_step)
         else:
@@ -112,7 +115,7 @@ def negamax(is_ai, depth, alpha, beta):
                 cut_count += 1
                 return beta
             alpha = value
-        return alpha
+    return alpha
 
 def order(blank_list):
     last_pt = listAllStep[-1]
@@ -134,6 +137,7 @@ def has_heightnor(pt):
             if (pt[0]+i, pt[1]+j) in listAllStep:
                 return True
 
+# 評估函數
 def evaluation(is_ai):
     total_score = 0
     if is_ai:
@@ -144,56 +148,78 @@ def evaluation(is_ai):
         enemy_list = listAI
     score_all_arr = []
     my_score = 0
+    # 我方在這個位置有多大價值
     for pt in my_list:
         m = pt[0]
         n = pt[1]
-        muy_score += cal_score(m,n,0,1,enemy_list,my_list,score_all_arr)
-        muy_score += cal_score(m,n,1,0,enemy_list,my_list,score_all_arr)
-        muy_score += cal_score(m,n,1,1,enemy_list,my_list,score_all_arr)
-        muy_score += cal_score(m,n,-1,1,enemy_list,my_list,score_all_arr)
-
+        # 上下
+        my_score += cal_score(m,n,0,1,enemy_list,my_list,score_all_arr)
+        # 左右
+        my_score += cal_score(m,n,1,0,enemy_list,my_list,score_all_arr)
+        # 右斜
+        my_score += cal_score(m,n,1,1,enemy_list,my_list,score_all_arr)
+        # 左斜
+        my_score += cal_score(m,n,-1,1,enemy_list,my_list,score_all_arr)
+    # 對方在這個位置有多大價值
     score_all_arr_enemy = []
     enemy_score = 0
     for pt in enemy_list:
         m = pt[0]
         n = pt[1]
-        muy_score += cal_score(m,n,0,1,my_list,enemy_list,score_all_arr)
-        muy_score += cal_score(m,n,1,0,my_list,enemy_list,score_all_arr)
-        muy_score += cal_score(m,n,1,1,my_list,enemy_list,score_all_arr)
-        muy_score += cal_score(m,n,-1,1,my_list,enemy_list,score_all_arr)
+        enemy_score += cal_score(m,n,0,1,my_list,enemy_list,score_all_arr_enemy)
+        enemy_score += cal_score(m,n,1,0,my_list,enemy_list,score_all_arr_enemy)
+        enemy_score += cal_score(m,n,1,1,my_list,enemy_list,score_all_arr_enemy)
+        enemy_score += cal_score(m,n,-1,1,my_list,enemy_list,score_all_arr_enemy)
+    # 綜合分數
     total_score = my_score-enemy_score*ratio*0.1
     return total_score
-
+#             位置         連線角度        敵人棋位    我方棋位     記分欄             
 def cal_score(m, n, x_decrict, y_derice, enemy_list, my_list, score_all_arr):
     add_score = 0
     max_score_shape = (0,None)
-
+    
     for item in score_all_arr:
         for pt in item[1]:
             if m == pt[0] and n == pt[1] and x_decrict == item[2][0] and y_derice == item[2][1]:
                 return 0
-
+    # 從-5到0
     for offset in range(-5,1):
         pos=[]
+        # 從0到6
         for i in range(0,6):
+            # 如果有敵方可能連線
             if(m+(i+offset)*x_decrict, n+(i+offset)*y_derice) in  enemy_list:
                 pos.append(2)
+            # 如果有我方可能連線
             elif (m + (i + offset) * x_decrict, n + (i + offset) * y_derice) in my_list:
                 pos.append(1)
+            # 都沒有
             else:
                 pos.append(0)
         tmp_shap5 = (pos[0], pos[1], pos[2], pos[3], pos[4])
         tmp_shap6 = (pos[0], pos[1], pos[2], pos[3], pos[4], pos[5])
-
+        # 從得分模型中開始比對
         for (score, shape) in shape_score:
+            # 如果我方符合其中一個模型
             if tmp_shap5 == shape or tmp_shap6 == shape:
+                # 如果大於目前最大得分
                 if score > max_score_shape[0]:
                     max_score_shape = (score, ((m + (0+offset) * x_decrict, n + (0+offset) * y_derice),
                                                (m + (1+offset) * x_decrict, n + (1+offset) * y_derice),
                                                (m + (2+offset) * x_decrict, n + (2+offset) * y_derice),
                                                (m + (3+offset) * x_decrict, n + (3+offset) * y_derice),
                                                (m + (4+offset) * x_decrict, n + (4+offset) * y_derice)), (x_decrict, y_derice))
-def now_human(board, turn):
+    # 如果一次有兩個活3。給額外分
+    if max_score_shape[1] is not None:
+        for item in score_all_arr:
+            for pt1 in item[1]:
+                for pt2 in max_score_shape[1]:
+                    if pt1==pt2 and max_score_shape[0] > 10 and item[0] > 10:
+                        add_score += item[0] + max_score_shape[0] + 1000   
+        score_all_arr.append(max_score_shape) 
+    return add_score + max_score_shape[0]
+
+def humanTurn(board, turn):
     global listAllStep
     try:
         xy = input(f"將{turn}下在?")
@@ -212,9 +238,9 @@ def now_human(board, turn):
         print("!!!!!!!!!!!!!! Attention !!!!!!!!!!!!!!\n")
         print(f"Got Error {e}")
         print("\n!!!!!!!!!!!!!! Attention !!!!!!!!!!!!!!")
-        now_human(board, turn)
+        humanTurn(board, turn)
 # ai下棋
-def now_computer(board, turn):
+def computerTurn(board, turn):
     print("Computer's Turn")
     # 計算
     aiStep = ai()
@@ -247,16 +273,18 @@ def chess(o,x):
     while True:
         print(o)
         if o=='p':
-            now_human(b,'o')
+            humanTurn(b,'o')
         else:
-            now_computer(b,'o')
+            computerTurn(b, 'o')
+        b.show()
         winCheck(b,'o')
         if x=='p':
-            now_human(b, 'x')
+            humanTurn(b, 'x')
         else:
-            now_computer(b, 'x')
+            computerTurn(b, 'x')
         b.show()
         winCheck(b, 'x')
+        # time.sleep(0.5)
 
 def winCheck(board, turn):
     win = False
@@ -270,16 +298,16 @@ def winCheck(board, turn):
             win = True if patternCheck(board, turn, r, c, i2, i2) else win #  下斜 \
             win = True if patternCheck(board, turn, r, c, i2, d2) else win #  上斜 /
     if(win):
-        print('{} 贏了！'.format(turn))  #  如果贏了就印出贏了
-        sys.exit() #  然後離開。
+        print('{} 贏了！'.format(turn)) 
+        sys.exit() 
     if(tie):
         print('平手')
-        sys.exit(0) #  然後離開。
+        sys.exit(0)
 
     return win
-user1 = input("user1:").lower()
-user2 = input("user2:").lower()
-o,x = user1, user2
+user1 = input("User1 : c/p ").lower()
+user2 = input("User2 : c/p ").lower()
+o, x = user1, user2
 user1 = "Computer" if user1=="c" else "Human"
 user2 = "Computer" if user2=="c" else "Human"
 print(f"User1 : {user1}, User2 : {user2}")

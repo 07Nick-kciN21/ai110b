@@ -1,8 +1,5 @@
-import random
 import sys
 import time
-
-from torch import rand
 
 
 #  棋盤物件
@@ -32,20 +29,20 @@ class Board:
         print(str(self))
 
 #Weight(棋型評估分數)
-shape_score = [(20, (0, 1, 1, 0, 0)),
-               (20, (0, 0, 1, 1, 0)),
-               (100, (1, 1, 0, 1, 0)),
-               (100, (0, 0, 1, 1, 1)),
-               (100, (1, 1, 1, 0, 0)),
-               (3000, (0, 1, 1, 1, 0)),
-               (3000, (0, 1, 0, 1, 1, 0)),
-               (3000, (0, 1, 1, 0, 1, 0)),
-               (3000, (1, 1, 1, 0, 1)),
-               (3000, (1, 1, 0, 1, 1)),
-               (3000, (1, 0, 1, 1, 1)),
-               (3000, (1, 1, 1, 1, 0)),
-               (3000, (0, 1, 1, 1, 1)),
-               (40000, (0, 1, 1, 1, 1, 0)),
+shape_score = [(50, (0, 1, 1, 0, 0)),
+               (50, (0, 0, 1, 1, 0)),
+               (200, (1, 1, 0, 1, 0)),
+               (500, (0, 0, 1, 1, 1)),
+               (500, (1, 1, 1, 0, 0)),
+               (5000, (0, 1, 1, 1, 0)),
+               (5000, (0, 1, 0, 1, 1, 0)),
+               (5000, (0, 1, 1, 0, 1, 0)),
+               (5000, (1, 1, 1, 0, 1)),
+               (5000, (1, 1, 0, 1, 1)),
+               (5000, (1, 0, 1, 1, 1)),
+               (5000, (1, 1, 1, 1, 0)),
+               (5000, (0, 1, 1, 1, 1)),
+               (50000, (0, 1, 1, 1, 1, 0)),
                (99999999, (1, 1, 1, 1, 1))]
 
 listAI = []  # AI
@@ -70,7 +67,8 @@ def ai():
     global search_count   # 統計搜索次數
     search_count = 0
     #如果電腦下第一步，則從 First Step 開始
-    firstPoint = (8,8)
+    firstPoint = (8, 8)
+    
     if not listAllStep: 
         listAllStep.append(firstPoint)
         listAI.append(firstPoint)
@@ -101,7 +99,7 @@ def negamax(is_ai, depth, alpha, beta):
         # 如果要評估的位置沒有相鄰的子， 則不去評估  減少計算
         if not has_neightnor(next_step):
             continue
-        
+
         if is_ai:
             listAI.append(next_step)
         else:
@@ -194,7 +192,6 @@ def evaluation(is_ai):
 
     return total_score   
 
-# 
 def cal_score(m, n, x_decrict, y_derice, enemy_list, my_list, score_all_arr):
     add_score = 0  # 加分項目
     # 在一个方向上， 只取最大的得分項目
@@ -235,7 +232,7 @@ def cal_score(m, n, x_decrict, y_derice, enemy_list, my_list, score_all_arr):
             for pt1 in item[1]:
                 for pt2 in max_score_shape[1]:
                     if pt1 == pt2 and max_score_shape[0] > 10 and item[0] > 10:
-                        add_score += item[0] + max_score_shape[0] + 10000
+                        add_score += item[0] + max_score_shape[0]
 
         score_all_arr.append(max_score_shape)
 
@@ -338,5 +335,5 @@ o, x = user1, user2
 user1 = "Computer" if user1=="c" else "Human"
 user2 = "Computer" if user2=="c" else "Human"
 print(f"User1 : {user1}, User2 : {user2}")
-# 進入遊戲
+
 chess(o, x)
